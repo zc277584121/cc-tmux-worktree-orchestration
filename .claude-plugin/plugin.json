@@ -1,0 +1,13 @@
+{
+  "name": "tmux-worktree-orchestration",
+  "version": "1.0.0",
+  "description": "Create parallel development environments with tmux, git worktrees, and Claude Code",
+  "author": {
+    "name": "zc277584121",
+    "url": "https://github.com/zc277584121"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zc277584121/cc-tmux-worktree-orchestration"
+  }
+}

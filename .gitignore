@@ -1,0 +1,16 @@
+# Development files
+PRD.md
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Worktrees (created by this plugin)
+worktrees/
