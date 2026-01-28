@@ -1,0 +1,26 @@
+{
+  "name": "tmux-worktree-plugins",
+  "owner": {
+    "name": "zc277584121",
+    "email": "277584121@qq.com"
+  },
+  "metadata": {
+    "description": "Plugins for parallel development with tmux, git worktrees, and Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "tmux-worktree-orchestration",
+      "source": ".",
+      "description": "Create parallel development environments with tmux, git worktrees, and Claude Code",
+      "version": "1.0.0",
+      "author": {
+        "name": "zc277584121"
+      },
+      "homepage": "https://github.com/zc277584121/cc-tmux-worktree-orchestration",
+      "repository": "https://github.com/zc277584121/cc-tmux-worktree-orchestration",
+      "license": "MIT",
+      "keywords": ["tmux", "worktree", "parallel-development", "git"]
+    }
+  ]
+}

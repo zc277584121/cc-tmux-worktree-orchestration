@@ -12,38 +12,11 @@ A Claude Code Plugin that enables parallel development by combining tmux, git wo
 
 ## Installation
 
-### Option 1: Install from Claude Code Marketplace (Recommended)
+In Claude Code, run:
 
-```bash
-# Step 1: Install the marketplace plugin (if not already installed)
-claude install-plugin marketplace
-
-# Step 2: Install this plugin from the marketplace
-/marketplace install tmux-worktree-orchestration
 ```
-
-Or install directly via Claude Code:
-
-```bash
-claude install-plugin https://github.com/zc277584121/cc-tmux-worktree-orchestration
-```
-
-### Option 2: Manual Installation - Use as Plugin Directory
-
-```bash
-# Clone this repository
-git clone https://github.com/zc277584121/cc-tmux-worktree-orchestration.git
-
-# Use with Claude Code by specifying the plugin directory
-claude --plugin-dir /path/to/cc-tmux-worktree-orchestration
-```
-
-### Option 3: Manual Installation - Copy to Plugins Directory
-
-```bash
-# Clone and copy to Claude plugins directory
-git clone https://github.com/zc277584121/cc-tmux-worktree-orchestration.git
-cp -r cc-tmux-worktree-orchestration ~/.claude/plugins/
+/plugin marketplace add zc277584121/cc-tmux-worktree-orchestration
+/plugin install tmux-worktree-orchestration@tmux-worktree-plugins
 ```
 
 ## Prerequisites
