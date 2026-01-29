@@ -11,7 +11,10 @@
   "plugins": [
     {
       "name": "tmux-worktree-orchestration",
-      "source": ".",
+      "source": {
+        "source": "github",
+        "repo": "zc277584121/cc-tmux-worktree-orchestration"
+      },
       "description": "Create parallel development environments with tmux, git worktrees, and Claude Code",
       "version": "1.0.0",
       "author": {
