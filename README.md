@@ -1,5 +1,17 @@
 # tmux-worktree-orchestration
 
+```
+  ┌──────┐   split   ┌──────┐ ┌──────┐ ┌──────┐
+  │ repo │ ════════▶ │🤖 AI │ │🤖 AI │ │🤖 AI │  ⚡ Parallel
+  └──────┘           └──────┘ └──────┘ └──────┘
+                          │       │       │
+                    merge └───────┴───────┘
+                                  ▼
+                             ┌──────┐
+                             │  ✅  │
+                             └──────┘
+```
+
 A Claude Code Plugin that enables parallel AI-powered development by combining tmux, git worktrees, and multiple Claude Code instances.
 
 ## Why This Plugin?
