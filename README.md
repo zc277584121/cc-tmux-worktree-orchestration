@@ -1,13 +1,96 @@
 # tmux-worktree-orchestration
 
-A Claude Code Plugin that enables parallel development by combining tmux, git worktrees, and Claude Code instances. Split your development into multiple features, each with its own isolated environment.
+A Claude Code Plugin that enables parallel AI-powered development by combining tmux, git worktrees, and multiple Claude Code instances.
+
+## Why This Plugin?
+
+### The Power of AI Concurrent Programming
+
+Traditional development is sequential - you work on one feature, finish it, then move to the next. But with AI coding assistants like Claude Code, we can break this limitation. **AI doesn't get tired, doesn't lose context when switching tasks, and can work on multiple problems simultaneously.**
+
+This plugin unleashes the full potential of AI-assisted development by allowing you to:
+- **Run multiple Claude Code instances in parallel**, each focused on a different feature
+- **Dramatically reduce development time** - what used to take days can now be done in hours
+- **Maintain perfect isolation** - each feature has its own git branch and working directory, no conflicts
+
+### Why tmux?
+
+tmux is the perfect companion for AI concurrent programming:
+
+- **Persistent Sessions**: SSH disconnected? Computer went to sleep? No problem. tmux sessions keep running. Your Claude Code instances continue working even when you're not connected.
+- **Session Recovery**: Simply `tmux attach` to reconnect to all your running AI sessions instantly
+- **Resource Efficient**: Unlike multiple terminal windows, tmux runs in a single process and uses minimal resources
+- **Remote Friendly**: Perfect for running on remote servers - start your AI agents, disconnect, come back later to check results
+
+## How It Works
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         Your Development Flow                           │
+└─────────────────────────────────────────────────────────────────────────┘
+
+1. SPLIT: Create parallel development environments
+   ┌──────────────┐
+   │  Main Repo   │ ──── /tmux-worktree-split login signup api ────┐
+   │    (main)    │                                                 │
+   └──────────────┘                                                 │
+                                                                    ▼
+   ┌──────────────────────────────────────────────────────────────────┐
+   │                        tmux session                              │
+   │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
+   │  │   Window 1  │  │   Window 2  │  │   Window 3  │              │
+   │  │   login     │  │   signup    │  │     api     │              │
+   │  │ ┌─────────┐ │  │ ┌─────────┐ │  │ ┌─────────┐ │              │
+   │  │ │ Claude  │ │  │ │ Claude  │ │  │ │ Claude  │ │              │
+   │  │ │  Code   │ │  │ │  Code   │ │  │ │  Code   │ │              │
+   │  │ └─────────┘ │  │ └─────────┘ │  │ └─────────┘ │              │
+   │  │             │  │             │  │             │              │
+   │  │ Worktree:   │  │ Worktree:   │  │ Worktree:   │              │
+   │  │ repo-login  │  │ repo-signup │  │ repo-api    │              │
+   │  │             │  │             │  │             │              │
+   │  │ Branch:     │  │ Branch:     │  │ Branch:     │              │
+   │  │feature/login│  │feature/signup│ │ feature/api │              │
+   │  └─────────────┘  └─────────────┘  └─────────────┘              │
+   └──────────────────────────────────────────────────────────────────┘
+
+2. DEVELOP: Work on features in parallel (AI does the heavy lifting!)
+   - Each Claude Code instance works independently
+   - No conflicts between features
+   - Switch between windows with Ctrl+b n/p
+
+3. MERGE: Combine everything back
+   ┌──────────────────────────────────────────────────────────────────┐
+   │                    /tmux-worktree-merge                          │
+   └──────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+   ┌──────────────┐
+   │  Main Repo   │  ← All features merged, worktrees cleaned up,
+   │    (main)    │    tmux sessions closed, ready for next sprint!
+   └──────────────┘
+```
+
+### State Management
+
+The plugin automatically manages state between split and merge:
+
+1. **On Split**: Creates `.worktree-split-state.md` in your project root
+   - Records base branch, tmux configuration, all feature info
+   - Copied to each worktree for easy access
+
+2. **On Merge**: Reads state file and performs cleanup
+   - Merges all feature branches back to base
+   - Removes worktrees and cleans up branches
+   - Kills tmux sessions
+   - Deletes state file (won't be committed to git)
 
 ## Features
 
-- **Parallel Development**: Work on multiple features simultaneously
+- **Parallel Development**: Work on multiple features simultaneously with AI
 - **Git Worktrees**: Each feature gets its own worktree and branch
 - **tmux Integration**: Organize environments as sessions, windows, or panes
 - **Claude Code Auto-start**: Automatically starts Claude Code in each environment
+- **State Tracking**: Automatic state management for seamless merge operations
 - **Natural Language Support**: Parse feature names from natural language input
 
 ## Installation
@@ -15,17 +98,7 @@ A Claude Code Plugin that enables parallel development by combining tmux, git wo
 In Claude Code, run:
 
 ```
-/plugin marketplace add zc277584121/cc-tmux-worktree-orchestration
-/plugin install tmux-worktree-orchestration@tmux-worktree-plugins
-```
-
-## Update
-
-To update the plugin to the latest version:
-
-```
-/plugin marketplace update
-/plugin update tmux-worktree-orchestration@tmux-worktree-plugins
+/install-plugin https://github.com/zc277584121/cc-tmux-worktree-orchestration
 ```
 
 ## Prerequisites
@@ -35,48 +108,64 @@ To update the plugin to the latest version:
   - Ubuntu: `sudo apt install tmux`
   - Fedora: `sudo dnf install tmux`
 - **git**: Version control (with worktree support)
-- **Claude Code**: CLI tool (optional, for auto-start)
+- **Claude Code**: CLI tool
 
 ## Usage
 
-### Basic Syntax
-
-```
-/tmux-worktree-orchestration:tmux-worktree-split <feature1> <feature2> ... [--tmux-level session|window|pane]
-```
-
-### Examples
-
-#### Standard Format
+### Split: Create Parallel Environments
 
 ```bash
 # Create windows (default) for three features
-/tmux-worktree-orchestration:tmux-worktree-split login signup dashboard
+/tmux-worktree-split login signup dashboard
 
 # Create separate sessions for each feature
-/tmux-worktree-orchestration:tmux-worktree-split auth api --tmux-level session
+/tmux-worktree-split auth api --tmux-level session
 
 # Create panes in a single window
-/tmux-worktree-orchestration:tmux-worktree-split feature1 feature2 --tmux-level pane
+/tmux-worktree-split feature1 feature2 --tmux-level pane
+
+# Specify base branch
+/tmux-worktree-split login signup --base-branch develop
 ```
 
-#### Natural Language
+Natural language also works:
 
 ```bash
-# Claude will parse feature names from natural language
-/tmux-worktree-orchestration:tmux-worktree-split I want to develop login, signup, and dashboard
+/tmux-worktree-split I want to develop login, signup, and dashboard
+/tmux-worktree-split auth and api using sessions
+```
 
-# Specify tmux level naturally
-/tmux-worktree-orchestration:tmux-worktree-split auth and api using sessions
+### Merge: Cleanup and Combine
+
+When you're done developing:
+
+```bash
+# Merge all features and cleanup
+/tmux-worktree-merge
+
+# Skip merge (just cleanup tmux and worktrees)
+/tmux-worktree-merge --skip-merge
+
+# Force cleanup even if merge fails
+/tmux-worktree-merge --force
 ```
 
 ### Options
+
+#### Split Options
 
 | Option | Description | Default |
 |--------|-------------|---------|
 | `--tmux-level` | Organization level: `session`, `window`, or `pane` | `window` |
 | `--base-branch` | Base branch for creating feature branches | Current branch |
 | `--session-name` | tmux session name (for window/pane levels) | `dev` |
+
+#### Merge Options
+
+| Option | Description |
+|--------|-------------|
+| `--skip-merge` | Skip merging branches, only cleanup |
+| `--force` | Force cleanup even if merge fails |
 
 ## tmux Levels Explained
 
@@ -138,64 +227,24 @@ Session: dev
 - Arrow navigation: `Ctrl+b <arrow>`
 - Zoom/unzoom: `Ctrl+b z`
 
-## What Gets Created
-
-For each feature, the plugin creates:
-
-1. **Git Worktree**: `../worktrees/<feature-name>/`
-2. **Feature Branch**: `feature/<feature-name>`
-3. **tmux Environment**: Based on specified level
-4. **Claude Code Instance**: Auto-started in each environment
-
 ## Directory Structure
 
-After running with features `login`, `signup`, `dashboard`:
+After running `/tmux-worktree-split login signup dashboard` in `my-project/`:
 
 ```
-your-repo/
-├── (your project files)
-└── ../worktrees/
-    ├── login/           # Worktree for login feature
-    │   └── (project files on feature/login branch)
-    ├── signup/          # Worktree for signup feature
-    │   └── (project files on feature/signup branch)
-    └── dashboard/       # Worktree for dashboard feature
-        └── (project files on feature/dashboard branch)
-```
-
-## Cleanup
-
-### Remove Worktrees
-
-```bash
-# Remove a specific worktree
-git worktree remove ../worktrees/login
-
-# Force remove (if there are changes)
-git worktree remove --force ../worktrees/login
-
-# List all worktrees
-git worktree list
-```
-
-### Kill tmux Sessions
-
-```bash
-# Kill a specific session
-tmux kill-session -t login
-
-# Kill all sessions
-tmux kill-server
-```
-
-### Delete Feature Branches
-
-```bash
-# Delete local branch
-git branch -d feature/login
-
-# Force delete
-git branch -D feature/login
+parent-directory/
+├── my-project/                    # Original repo (main branch)
+│   ├── .worktree-split-state.md   # State file (auto-deleted on merge)
+│   └── (your project files)
+├── my-project-login/              # Worktree for login feature
+│   ├── .worktree-split-state.md   # Copy of state file
+│   └── (project files on feature/login branch)
+├── my-project-signup/             # Worktree for signup feature
+│   ├── .worktree-split-state.md
+│   └── (project files on feature/signup branch)
+└── my-project-dashboard/          # Worktree for dashboard feature
+    ├── .worktree-split-state.md
+    └── (project files on feature/dashboard branch)
 ```
 
 ## Troubleshooting
@@ -229,7 +278,7 @@ git status  # Should show repo status
 The plugin will reuse existing worktrees. To start fresh:
 
 ```bash
-git worktree remove ../worktrees/<feature-name>
+git worktree remove ../<project>-<feature-name>
 ```
 
 ### Claude Code doesn't start
@@ -240,33 +289,12 @@ Make sure `claude` command is available in your PATH:
 which claude  # Should show path to claude
 ```
 
-## Development
+### Merge conflicts
 
-### Local Testing
+If merge conflicts occur during `/tmux-worktree-merge`:
 
-To test the plugin locally during development:
-
-```bash
-# Clone the repository
-git clone https://github.com/zc277584121/cc-tmux-worktree-orchestration.git
-
-# Run Claude Code with the plugin loaded
-claude --plugin-dir ./cc-tmux-worktree-orchestration
-```
-
-### Validate Plugin
-
-To validate the plugin and marketplace configuration:
-
-```bash
-claude plugin validate ./cc-tmux-worktree-orchestration
-```
-
-Or from within Claude Code:
-
-```
-/plugin validate ./cc-tmux-worktree-orchestration
-```
+1. Use `--force` to skip failed merges and continue cleanup
+2. Or manually resolve conflicts and run merge again
 
 ## Author
 
