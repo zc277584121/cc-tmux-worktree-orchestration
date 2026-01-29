@@ -63,33 +63,34 @@ bash "${CLAUDE_PLUGIN_ROOT}/scripts/tmux-worktree-split.sh" \
 
 ## Post-Split Reminder (Important!)
 
-**Git worktree does NOT copy untracked/ignored directories.** After the split completes, you MUST check for and remind the user about directories that won't be available in the new worktrees.
-
-### Common untracked directories to check:
-
-| Directory | Type | Suggested Action |
-|-----------|------|------------------|
-| `.venv/`, `venv/` | Python virtual env | Run `uv sync` or `pip install -r requirements.txt` in each worktree |
-| `node_modules/` | Node.js dependencies | Run `npm install` or `pnpm install` in each worktree |
-| `__pycache__/` | Python cache | Will be auto-regenerated, no action needed |
-| `dataset/`, `data/` | Large data files | Consider symlink to shared location |
-| `.env` | Environment config | Copy from main repo or create new |
-| `build/`, `dist/` | Build artifacts | Will be regenerated on build, no action needed |
+**Git worktree does NOT copy untracked/ignored files and directories.** After the split completes, you MUST analyze the project and remind the user about important untracked items.
 
 ### Your task after script execution:
 
-1. **Check** if any of these directories exist in the current project:
-   ```bash
-   ls -la | grep -E "^d.*(venv|node_modules|dataset|data)$"
-   ```
+1. **Read `.gitignore`** to understand what patterns are ignored in this project
 
-2. **Check** `.gitignore` for other large ignored directories
+2. **Check project directory structure** (use `ls -la`) to see what directories/files actually exist
 
-3. **Remind the user** with a message like:
-   > ⚠️ **Note:** The following directories are not tracked by git and won't be in the new worktrees:
-   > - `.venv/` - You'll need to run `uv sync` in each worktree
-   > - `node_modules/` - You'll need to run `npm install` in each worktree
+3. **Identify untracked items that may affect development** by cross-referencing:
+   - Items that exist in the project AND match `.gitignore` patterns
+   - Focus on items that are important for development (dependencies, data, configs)
+   - Ignore auto-generated caches like `__pycache__/`, `.pytest_cache/`, `build/`, `dist/` - these will regenerate
+
+4. **Provide specific recommendations** based on what you find:
+
+   | Type | Examples | Suggested Action |
+   |------|----------|------------------|
+   | Python virtual env | `.venv/`, `venv/` | Run `uv sync` or `pip install -r requirements.txt` in each worktree |
+   | Node.js dependencies | `node_modules/` | Run `npm install` or `pnpm install` in each worktree |
+   | Environment config | `.env`, `.env.local` | Copy from main repo: `cp ../<project>/.env .` |
+   | Large data files | datasets, models, etc. | Create symlink: `ln -s /path/to/shared/data ./data` |
+   | IDE settings | `.idea/`, `.vscode/` | Usually OK to skip, will regenerate |
+
+5. **Format your reminder** like this:
+   > ⚠️ **Note:** The following items are not tracked by git and won't be in the new worktrees:
+   > - `.venv/` - Run `uv sync` to recreate
+   > - `.env` - Copy from main repo: `cp ../my-project/.env .`
    >
-   > For large data directories, consider creating symlinks to a shared location.
+   > Auto-generated directories (`__pycache__/`, etc.) will regenerate automatically.
 
-4. **Only mention directories that actually exist** in the project - don't warn about irrelevant ones
+**Key principle:** Only warn about items that actually exist AND are in `.gitignore` AND matter for development. Don't guess based on directory names alone.
