@@ -60,3 +60,36 @@ bash "${CLAUDE_PLUGIN_ROOT}/scripts/tmux-worktree-split.sh" \
 - If the input is unclear, ask for clarification before executing
 - The script will create worktrees relative to the user's current working directory
 - The user is typically in their project's git root directory when running this command
+
+## Post-Split Reminder (Important!)
+
+**Git worktree does NOT copy untracked/ignored directories.** After the split completes, you MUST check for and remind the user about directories that won't be available in the new worktrees.
+
+### Common untracked directories to check:
+
+| Directory | Type | Suggested Action |
+|-----------|------|------------------|
+| `.venv/`, `venv/` | Python virtual env | Run `uv sync` or `pip install -r requirements.txt` in each worktree |
+| `node_modules/` | Node.js dependencies | Run `npm install` or `pnpm install` in each worktree |
+| `__pycache__/` | Python cache | Will be auto-regenerated, no action needed |
+| `dataset/`, `data/` | Large data files | Consider symlink to shared location |
+| `.env` | Environment config | Copy from main repo or create new |
+| `build/`, `dist/` | Build artifacts | Will be regenerated on build, no action needed |
+
+### Your task after script execution:
+
+1. **Check** if any of these directories exist in the current project:
+   ```bash
+   ls -la | grep -E "^d.*(venv|node_modules|dataset|data)$"
+   ```
+
+2. **Check** `.gitignore` for other large ignored directories
+
+3. **Remind the user** with a message like:
+   > ⚠️ **Note:** The following directories are not tracked by git and won't be in the new worktrees:
+   > - `.venv/` - You'll need to run `uv sync` in each worktree
+   > - `node_modules/` - You'll need to run `npm install` in each worktree
+   >
+   > For large data directories, consider creating symlinks to a shared location.
+
+4. **Only mention directories that actually exist** in the project - don't warn about irrelevant ones

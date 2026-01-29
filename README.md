@@ -306,6 +306,28 @@ If merge conflicts occur during `/tmux-worktree-merge`:
 1. Use `--force` to skip failed merges and continue cleanup
 2. Or manually resolve conflicts and run merge again
 
+### Missing `.venv`, `node_modules`, or other dependencies in worktrees
+
+**This is expected behavior.** Git worktrees only contain files tracked by git. Directories in `.gitignore` (like `.venv`, `node_modules`, `dataset/`) are **not** copied to new worktrees.
+
+**Solution:** Re-install dependencies in each worktree:
+
+```bash
+# Python projects
+cd ../my-project-feature1
+uv sync  # or: pip install -r requirements.txt
+
+# Node.js projects
+cd ../my-project-feature1
+npm install  # or: pnpm install
+```
+
+**For large data directories:** Consider using symlinks to a shared location:
+
+```bash
+ln -s /path/to/shared/dataset ../my-project-feature1/dataset
+```
+
 ## Author
 
 - **GitHub**: [zc277584121](https://github.com/zc277584121)
