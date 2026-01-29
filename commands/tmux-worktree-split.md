@@ -6,9 +6,9 @@ allowed-tools:
   - Bash
 ---
 
-# tmux-worktree-split Skill
+# tmux-worktree-split Command
 
-This skill creates parallel development environments by combining tmux, git worktrees, and Claude Code instances. Each feature gets its own isolated environment.
+This command creates parallel development environments by combining tmux, git worktrees, and Claude Code instances. Each feature gets its own isolated environment.
 
 ## User Input
 
@@ -45,11 +45,11 @@ Parse the user input and extract:
 
 After parsing, execute the script. The script is located in the `scripts/` directory of this plugin.
 
-**IMPORTANT**: Use the Bash tool to run the script. The script path relative to this skill file is `../../scripts/tmux-worktree-split.sh`.
+**IMPORTANT**: Use the Bash tool to run the script. The script path relative to this command file is `../scripts/tmux-worktree-split.sh`.
 
-You can find the absolute path by looking at the SKILL.md file path and navigating up two directories to find `scripts/tmux-worktree-split.sh`.
+You can find the absolute path by looking at this command file path and navigating up one directory to find `scripts/tmux-worktree-split.sh`.
 
-For example, if this SKILL.md is at `/path/to/plugin/skills/tmux-worktree-split/SKILL.md`, then the script is at `/path/to/plugin/scripts/tmux-worktree-split.sh`.
+For example, if this file is at `/path/to/plugin/commands/tmux-worktree-split.md`, then the script is at `/path/to/plugin/scripts/tmux-worktree-split.sh`.
 
 Execute the script with the extracted parameters:
 
@@ -60,7 +60,7 @@ bash "<plugin-root>/scripts/tmux-worktree-split.sh" \
   [--base-branch "<branch>"]
 ```
 
-Replace `<plugin-root>` with the actual plugin directory path (two levels up from this SKILL.md file).
+Replace `<plugin-root>` with the actual plugin directory path (one level up from this command file).
 
 ## Important Notes
 
@@ -69,4 +69,4 @@ Replace `<plugin-root>` with the actual plugin directory path (two levels up fro
 - Convert any invalid characters to hyphens
 - If the input is unclear, ask for clarification before executing
 - The script will create worktrees relative to the user's current working directory (where they run claude)
-- The user is typically in their project's git root directory when running this skill
+- The user is typically in their project's git root directory when running this command

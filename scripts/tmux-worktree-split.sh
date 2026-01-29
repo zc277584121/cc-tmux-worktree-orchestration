@@ -9,11 +9,19 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
+# State file name
+STATE_FILE=".worktree-split-state.md"
+
 # Default values
 TMUX_LEVEL="window"
 BASE_BRANCH=""
 FEATURES=""
 SESSION_NAME="dev"
+
+# Arrays to track created worktrees for state file
+CREATED_FEATURES=()
+CREATED_BRANCHES=()
+CREATED_WORKTREE_PATHS=()
 
 # Colors for output
 RED='\033[0;31m'
@@ -177,8 +185,9 @@ get_absolute_path() {
 }
 
 # Create git worktree for a feature
-# Returns the worktree path via stdout (only the path, nothing else)
+# Sets LAST_WORKTREE_PATH global variable with the created path
 # All log messages go to stderr to avoid polluting the return value
+# Also records the created worktree info to global arrays for state file
 create_worktree() {
     local feature="$1"
     local sanitized=$(sanitize_feature_name "$feature")
@@ -192,26 +201,33 @@ create_worktree() {
     # This keeps worktrees at the same level as the main project, avoiding conflicts
     local worktree_path="../${project_name}-${sanitized}"
 
-    print_info "Creating worktree for: $feature" >&2
+    print_info "Creating worktree for: $feature"
 
     # Check if worktree already exists
     if [[ -d "$worktree_path" ]]; then
-        print_warning "Worktree already exists at $worktree_path, reusing..." >&2
-        echo "$worktree_path"
-        return 0
-    fi
-
-    # Check if branch exists
-    if git show-ref --verify --quiet "refs/heads/$branch_name"; then
-        print_info "Branch $branch_name already exists, using it..." >&2
-        git worktree add "$worktree_path" "$branch_name" >&2
+        print_warning "Worktree already exists at $worktree_path, reusing..."
     else
-        print_info "Creating new branch $branch_name..." >&2
-        git worktree add -b "$branch_name" "$worktree_path" "$BASE_BRANCH" >&2
+        # Check if branch exists
+        if git show-ref --verify --quiet "refs/heads/$branch_name"; then
+            print_info "Branch $branch_name already exists, using it..."
+            git worktree add "$worktree_path" "$branch_name"
+        else
+            print_info "Creating new branch $branch_name..."
+            git worktree add -b "$branch_name" "$worktree_path" "$BASE_BRANCH"
+        fi
+        print_success "Worktree created at $worktree_path"
     fi
 
-    print_success "Worktree created at $worktree_path" >&2
-    echo "$worktree_path"
+    # Get absolute path for state file
+    local abs_worktree_path=$(get_absolute_path "$worktree_path")
+
+    # Record to global arrays for state file
+    CREATED_FEATURES+=("$sanitized")
+    CREATED_BRANCHES+=("$branch_name")
+    CREATED_WORKTREE_PATHS+=("$abs_worktree_path")
+
+    # Set global variable for caller (avoid subshell issue)
+    LAST_WORKTREE_PATH="$worktree_path"
 }
 
 # Create tmux session level environments
@@ -223,7 +239,8 @@ create_tmux_sessions() {
     for feature in "${features[@]}"; do
         local sanitized=$(sanitize_feature_name "$feature")
         local session_name="$sanitized"
-        local worktree_path=$(create_worktree "$feature")
+        create_worktree "$feature"
+        local worktree_path="$LAST_WORKTREE_PATH"
         local abs_worktree_path=$(get_absolute_path "$worktree_path")
 
         # Check if session already exists
@@ -267,7 +284,8 @@ create_tmux_windows() {
 
     for feature in "${features[@]}"; do
         local sanitized=$(sanitize_feature_name "$feature")
-        local worktree_path=$(create_worktree "$feature")
+        create_worktree "$feature"
+        local worktree_path="$LAST_WORKTREE_PATH"
         local abs_worktree_path=$(get_absolute_path "$worktree_path")
 
         if $first; then
@@ -314,7 +332,7 @@ create_tmux_windows() {
     for feature in "${features[@]}"; do
         local sanitized=$(sanitize_feature_name "$feature")
         echo "  $i: $sanitized"
-        ((i++))
+        i=$((i + 1))
     done
 }
 
@@ -328,7 +346,8 @@ create_tmux_panes() {
 
     for feature in "${features[@]}"; do
         local sanitized=$(sanitize_feature_name "$feature")
-        local worktree_path=$(create_worktree "$feature")
+        create_worktree "$feature"
+        local worktree_path="$LAST_WORKTREE_PATH"
         local abs_worktree_path=$(get_absolute_path "$worktree_path")
 
         if $first; then
@@ -348,7 +367,7 @@ create_tmux_panes() {
 
             first=false
             print_success "Created pane for: $sanitized"
-            ((pane_count++))
+            pane_count=$((pane_count + 1))
             continue
         fi
 
@@ -364,7 +383,7 @@ create_tmux_panes() {
         fi
 
         print_success "Created pane for: $sanitized"
-        ((pane_count++))
+        pane_count=$((pane_count + 1))
     done
 
     # Final layout adjustment
@@ -383,6 +402,66 @@ create_tmux_panes() {
     for feature in "${features[@]}"; do
         local sanitized=$(sanitize_feature_name "$feature")
         echo "  - $sanitized"
+    done
+}
+
+# Save state file for merge command
+save_state_file() {
+    local git_root=$(git rev-parse --show-toplevel)
+    local state_file_path="$git_root/$STATE_FILE"
+    local created_at=$(date -Iseconds 2>/dev/null || date "+%Y-%m-%dT%H:%M:%S")
+
+    print_info "Saving state file: $state_file_path"
+
+    cat > "$state_file_path" << EOF
+---
+base_branch: $BASE_BRANCH
+tmux_level: $TMUX_LEVEL
+session_name: $SESSION_NAME
+created_at: $created_at
+features:
+EOF
+
+    # Add each feature's info
+    for i in "${!CREATED_FEATURES[@]}"; do
+        cat >> "$state_file_path" << EOF
+  - name: ${CREATED_FEATURES[$i]}
+    branch: ${CREATED_BRANCHES[$i]}
+    worktree_path: ${CREATED_WORKTREE_PATHS[$i]}
+EOF
+    done
+
+    cat >> "$state_file_path" << 'EOF'
+---
+
+# Worktree Split State
+
+This file tracks the state of parallel development environments created by `tmux-worktree-split`.
+
+**DO NOT delete this file manually** - it will be automatically removed when you run `tmux-worktree-merge`.
+
+## What this file is for
+
+- Records which features were split from which base branch
+- Tracks worktree locations and branch names
+- Enables the merge command to clean up properly
+
+## Next steps
+
+1. Work on your features in the separate tmux windows/sessions
+2. Commit your changes in each worktree
+3. When ready to merge, run `/tmux-worktree-merge` in any of the worktrees
+EOF
+
+    print_success "State file saved"
+
+    # Copy state file to each worktree
+    print_info "Copying state file to worktrees..."
+    for worktree_path in "${CREATED_WORKTREE_PATHS[@]}"; do
+        if [[ -d "$worktree_path" ]]; then
+            cp "$state_file_path" "$worktree_path/$STATE_FILE"
+            print_success "Copied to: $worktree_path"
+        fi
     done
 }
 
@@ -416,6 +495,10 @@ main() {
             ;;
     esac
 
+    # Save state file for merge command
+    echo ""
+    save_state_file
+
     echo ""
     echo "=========================================="
     echo "  Setup Complete!"
@@ -432,6 +515,8 @@ main() {
         echo "To start working, run:"
         echo "  tmux attach -t $SESSION_NAME"
     fi
+    echo ""
+    echo "When ready to merge, run: /tmux-worktree-merge"
     echo ""
 }
 
