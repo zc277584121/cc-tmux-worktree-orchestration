@@ -14,27 +14,27 @@
 
 A Claude Code Plugin that enables parallel AI-powered development by combining tmux, git worktrees, and multiple Claude Code instances.
 
-## Why This Plugin?
+## 🤔 Why This Plugin?
 
-### The Power of AI Concurrent Programming
+### ⚡ The Power of AI Concurrent Programming
 
 Traditional development is sequential - you work on one feature, finish it, then move to the next. But with AI coding assistants like Claude Code, we can break this limitation. **AI doesn't get tired, doesn't lose context when switching tasks, and can work on multiple problems simultaneously.**
 
 This plugin unleashes the full potential of AI-assisted development by allowing you to:
-- **Run multiple Claude Code instances in parallel**, each focused on a different feature
-- **Dramatically reduce development time** - what used to take days can now be done in hours
-- **Maintain perfect isolation** - each feature has its own git branch and working directory, no conflicts
+- 🔀 **Run multiple Claude Code instances in parallel**, each focused on a different feature
+- 🚀 **Dramatically reduce development time** - what used to take days can now be done in hours
+- 🔒 **Maintain perfect isolation** - each feature has its own git branch and working directory, no conflicts
 
-### Why tmux?
+### 🖥️ Why tmux?
 
 tmux is the perfect companion for AI concurrent programming:
 
-- **Persistent Sessions**: SSH disconnected? Computer went to sleep? No problem. tmux sessions keep running. Your Claude Code instances continue working even when you're not connected.
-- **Session Recovery**: Simply `tmux attach` to reconnect to all your running AI sessions instantly
-- **Resource Efficient**: Unlike multiple terminal windows, tmux runs in a single process and uses minimal resources
-- **Remote Friendly**: Perfect for running on remote servers - start your AI agents, disconnect, come back later to check results
+- 💾 **Persistent Sessions**: SSH disconnected? Computer went to sleep? No problem. tmux sessions keep running. Your Claude Code instances continue working even when you're not connected.
+- 🔄 **Session Recovery**: Simply `tmux attach` to reconnect to all your running AI sessions instantly
+- 📦 **Resource Efficient**: Unlike multiple terminal windows, tmux runs in a single process and uses minimal resources
+- 🌐 **Remote Friendly**: Perfect for running on remote servers - start your AI agents, disconnect, come back later to check results
 
-## How It Works
+## 🔧 How It Works
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -82,7 +82,7 @@ tmux is the perfect companion for AI concurrent programming:
    └──────────────┘
 ```
 
-### State Management
+### 📋 State Management
 
 The plugin automatically manages state between split and merge:
 
@@ -96,16 +96,16 @@ The plugin automatically manages state between split and merge:
    - Kills tmux sessions
    - Deletes state file (won't be committed to git)
 
-## Features
+## ✨ Features
 
-- **Parallel Development**: Work on multiple features simultaneously with AI
-- **Git Worktrees**: Each feature gets its own worktree and branch
-- **tmux Integration**: Organize environments as sessions, windows, or panes
-- **Claude Code Auto-start**: Automatically starts Claude Code in each environment
-- **State Tracking**: Automatic state management for seamless merge operations
-- **Natural Language Support**: Parse feature names from natural language input
+- 🔀 **Parallel Development**: Work on multiple features simultaneously with AI
+- 🌳 **Git Worktrees**: Each feature gets its own worktree and branch
+- 🖥️ **tmux Integration**: Organize environments as sessions, windows, or panes
+- 🤖 **Claude Code Auto-start**: Automatically starts Claude Code in each environment
+- 📋 **State Tracking**: Automatic state management for seamless merge operations
+- 💬 **Natural Language Support**: Parse feature names from natural language input
 
-## Installation
+## 📦 Installation
 
 In Claude Code, run:
 
@@ -123,7 +123,7 @@ To update the plugin:
 /plugin update tmux-worktree-orchestration
 ```
 
-## Prerequisites
+## 📋 Prerequisites
 
 - **tmux**: Terminal multiplexer
   - macOS: `brew install tmux`
@@ -132,9 +132,9 @@ To update the plugin:
 - **git**: Version control (with worktree support)
 - **Claude Code**: CLI tool
 
-## Usage
+## 🚀 Usage
 
-### Split: Create Parallel Environments
+### 🔀 Split: Create Parallel Environments
 
 ```bash
 # Create windows (default) for three features
@@ -157,7 +157,7 @@ Natural language also works:
 /tmux-worktree-split auth and api using sessions
 ```
 
-### Merge: Cleanup and Combine
+### 🔗 Merge: Cleanup and Combine
 
 When you're done developing:
 
@@ -172,7 +172,7 @@ When you're done developing:
 /tmux-worktree-merge --force
 ```
 
-### Options
+### ⚙️ Options
 
 #### Split Options
 
@@ -189,7 +189,7 @@ When you're done developing:
 | `--skip-merge` | Skip merging branches, only cleanup |
 | `--force` | Force cleanup even if merge fails |
 
-## tmux Levels Explained
+## 🖥️ tmux Levels Explained
 
 ### Session Level (`--tmux-level session`)
 
@@ -249,7 +249,7 @@ Session: dev
 - Arrow navigation: `Ctrl+b <arrow>`
 - Zoom/unzoom: `Ctrl+b z`
 
-## Directory Structure
+## 📁 Directory Structure
 
 After running `/tmux-worktree-split login signup dashboard` in `my-project/`:
 
@@ -269,7 +269,7 @@ parent-directory/
     └── (project files on feature/dashboard branch)
 ```
 
-## Troubleshooting
+## 🔍 Troubleshooting
 
 ### "tmux is not installed"
 
@@ -340,11 +340,11 @@ npm install  # or: pnpm install
 ln -s /path/to/shared/dataset ../my-project-feature1/dataset
 ```
 
-## Author
+## 👤 Author
 
 - **GitHub**: [zc277584121](https://github.com/zc277584121)
 - **Repository**: [cc-tmux-worktree-orchestration](https://github.com/zc277584121/cc-tmux-worktree-orchestration)
 
-## License
+## 📄 License
 
 MIT
