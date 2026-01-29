@@ -159,46 +159,58 @@ sanitize_feature_name() {
 get_absolute_path() {
     local path="$1"
     if [[ -d "$path" ]]; then
-        # Use Python for reliable cross-platform absolute path resolution
-        python3 -c "import os; print(os.path.abspath('$path'))" 2>/dev/null || \
-        # Fallback to realpath if available
-        realpath "$path" 2>/dev/null || \
-        # Fallback to cd && pwd
+        # Use cd && pwd for reliable absolute path resolution
         (cd "$path" && pwd)
     else
-        echo "$path"
+        # For non-existent paths, resolve the parent directory and append the basename
+        local parent_dir=$(dirname "$path")
+        local base_name=$(basename "$path")
+        if [[ -d "$parent_dir" ]]; then
+            echo "$(cd "$parent_dir" && pwd)/$base_name"
+        else
+            # Fallback: use Python for path resolution
+            python3 -c "import os; print(os.path.abspath('$path'))" 2>/dev/null || \
+            realpath -m "$path" 2>/dev/null || \
+            echo "$path"
+        fi
     fi
 }
 
 # Create git worktree for a feature
+# Returns the worktree path via stdout (only the path, nothing else)
+# All log messages go to stderr to avoid polluting the return value
 create_worktree() {
     local feature="$1"
     local sanitized=$(sanitize_feature_name "$feature")
     local branch_name="feature/$sanitized"
-    local worktree_path="../worktrees/$sanitized"
 
-    print_info "Creating worktree for: $feature"
+    # Get the current project directory name
+    local git_root=$(git rev-parse --show-toplevel)
+    local project_name=$(basename "$git_root")
+
+    # Create worktree path: ../{project_name}-{feature_name}
+    # This keeps worktrees at the same level as the main project, avoiding conflicts
+    local worktree_path="../${project_name}-${sanitized}"
+
+    print_info "Creating worktree for: $feature" >&2
 
     # Check if worktree already exists
     if [[ -d "$worktree_path" ]]; then
-        print_warning "Worktree already exists at $worktree_path, reusing..."
+        print_warning "Worktree already exists at $worktree_path, reusing..." >&2
         echo "$worktree_path"
         return 0
     fi
 
-    # Create worktrees directory if not exists
-    mkdir -p "../worktrees"
-
     # Check if branch exists
     if git show-ref --verify --quiet "refs/heads/$branch_name"; then
-        print_info "Branch $branch_name already exists, using it..."
-        git worktree add "$worktree_path" "$branch_name"
+        print_info "Branch $branch_name already exists, using it..." >&2
+        git worktree add "$worktree_path" "$branch_name" >&2
     else
-        print_info "Creating new branch $branch_name..."
-        git worktree add -b "$branch_name" "$worktree_path" "$BASE_BRANCH"
+        print_info "Creating new branch $branch_name..." >&2
+        git worktree add -b "$branch_name" "$worktree_path" "$BASE_BRANCH" >&2
     fi
 
-    print_success "Worktree created at $worktree_path"
+    print_success "Worktree created at $worktree_path" >&2
     echo "$worktree_path"
 }
 
