@@ -168,7 +168,7 @@ When you're done developing:
 |--------|-------------|---------|
 | `--tmux-level` | Organization level: `session`, `window`, or `pane` | `window` |
 | `--base-branch` | Base branch for creating feature branches | Current branch |
-| `--session-name` | tmux session name (for window/pane levels) | `dev` |
+| `--session-name` | tmux session name (for window/pane levels) | Project directory name |
 
 #### Merge Options
 

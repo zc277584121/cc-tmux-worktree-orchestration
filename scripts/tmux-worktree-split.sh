@@ -15,7 +15,7 @@ STATE_FILE=".worktree-split-state.md"
 TMUX_LEVEL="window"
 BASE_BRANCH=""
 FEATURES=""
-SESSION_NAME="dev"
+SESSION_NAME=""  # Will be set to project name if not specified
 
 # Arrays to track created worktrees for state file
 CREATED_FEATURES=()
@@ -59,7 +59,7 @@ Required:
 Options:
   --tmux-level <level>       tmux organization level: session, window, or pane (default: window)
   --base-branch <branch>     Base branch for worktrees (default: current branch)
-  --session-name <name>      tmux session name (default: dev)
+  --session-name <name>      tmux session name (default: project directory name)
   -h, --help                 Show this help message
 
 Examples:
@@ -153,6 +153,15 @@ get_base_branch() {
         BASE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
     fi
     print_info "Using base branch: $BASE_BRANCH"
+}
+
+# Get session name (default to project directory name)
+get_session_name() {
+    if [[ -z "$SESSION_NAME" ]]; then
+        local git_root=$(git rev-parse --show-toplevel)
+        SESSION_NAME=$(basename "$git_root")
+    fi
+    print_info "Using session name: $SESSION_NAME"
 }
 
 # Sanitize feature name for git branch
@@ -353,8 +362,8 @@ create_tmux_panes() {
             # Create new session with first pane
             if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
                 print_warning "Session $SESSION_NAME already exists, adding panes..."
-                # Split existing pane
-                tmux split-window -t "$SESSION_NAME" -c "$abs_worktree_path"
+                # Split existing pane vertically (side by side)
+                tmux split-window -h -t "$SESSION_NAME" -c "$abs_worktree_path"
             else
                 tmux new-session -d -s "$SESSION_NAME" -c "$abs_worktree_path"
             fi
@@ -370,8 +379,8 @@ create_tmux_panes() {
             continue
         fi
 
-        # Split current pane
-        tmux split-window -t "$SESSION_NAME" -c "$abs_worktree_path"
+        # Split current pane vertically (side by side)
+        tmux split-window -h -t "$SESSION_NAME" -c "$abs_worktree_path"
 
         # Rebalance panes
         tmux select-layout -t "$SESSION_NAME" tiled
@@ -475,11 +484,13 @@ main() {
     parse_args "$@"
     check_prerequisites
     get_base_branch
+    get_session_name
 
     echo ""
     print_info "Features: $FEATURES"
     print_info "tmux level: $TMUX_LEVEL"
     print_info "Base branch: $BASE_BRANCH"
+    print_info "Session name: $SESSION_NAME"
     echo ""
 
     case $TMUX_LEVEL in
