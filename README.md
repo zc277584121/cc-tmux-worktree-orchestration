@@ -19,6 +19,15 @@ In Claude Code, run:
 /plugin install tmux-worktree-orchestration@tmux-worktree-plugins
 ```
 
+## Update
+
+To update the plugin to the latest version:
+
+```
+/plugin marketplace update
+/plugin update tmux-worktree-orchestration@tmux-worktree-plugins
+```
+
 ## Prerequisites
 
 - **tmux**: Terminal multiplexer
@@ -229,6 +238,34 @@ Make sure `claude` command is available in your PATH:
 
 ```bash
 which claude  # Should show path to claude
+```
+
+## Development
+
+### Local Testing
+
+To test the plugin locally during development:
+
+```bash
+# Clone the repository
+git clone https://github.com/zc277584121/cc-tmux-worktree-orchestration.git
+
+# Run Claude Code with the plugin loaded
+claude --plugin-dir ./cc-tmux-worktree-orchestration
+```
+
+### Validate Plugin
+
+To validate the plugin and marketplace configuration:
+
+```bash
+claude plugin validate ./cc-tmux-worktree-orchestration
+```
+
+Or from within Claude Code:
+
+```
+/plugin validate ./cc-tmux-worktree-orchestration
 ```
 
 ## Author
