@@ -7,7 +7,6 @@ set -e
 
 # Source utility functions
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/utils.sh"
 
 # State file name
 STATE_FILE=".worktree-split-state.md"
