@@ -43,24 +43,14 @@ Parse the user input and extract:
 
 ## Execution
 
-After parsing, execute the script. The script is located in the `scripts/` directory of this plugin.
-
-**IMPORTANT**: Use the Bash tool to run the script. The script path relative to this command file is `../scripts/tmux-worktree-split.sh`.
-
-You can find the absolute path by looking at this command file path and navigating up one directory to find `scripts/tmux-worktree-split.sh`.
-
-For example, if this file is at `/path/to/plugin/commands/tmux-worktree-split.md`, then the script is at `/path/to/plugin/scripts/tmux-worktree-split.sh`.
-
-Execute the script with the extracted parameters:
+After parsing, execute the script using the `CLAUDE_PLUGIN_ROOT` environment variable:
 
 ```bash
-bash "<plugin-root>/scripts/tmux-worktree-split.sh" \
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/tmux-worktree-split.sh" \
   --features "<feature1> <feature2> ..." \
   --tmux-level "<session|window|pane>" \
   [--base-branch "<branch>"]
 ```
-
-Replace `<plugin-root>` with the actual plugin directory path (one level up from this command file).
 
 ## Important Notes
 
@@ -68,5 +58,5 @@ Replace `<plugin-root>` with the actual plugin directory path (one level up from
 - Feature names should be valid for git branch names (no spaces, special chars)
 - Convert any invalid characters to hyphens
 - If the input is unclear, ask for clarification before executing
-- The script will create worktrees relative to the user's current working directory (where they run claude)
+- The script will create worktrees relative to the user's current working directory
 - The user is typically in their project's git root directory when running this command

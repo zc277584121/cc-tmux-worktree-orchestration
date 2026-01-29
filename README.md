@@ -98,7 +98,17 @@ The plugin automatically manages state between split and merge:
 In Claude Code, run:
 
 ```
-/install-plugin https://github.com/zc277584121/cc-tmux-worktree-orchestration
+/plugin marketplace add zc277584121/cc-tmux-worktree-orchestration
+
+/plugin install tmux-worktree-orchestration
+```
+
+To update the plugin:
+
+```
+/plugin marketplace update
+
+/plugin update tmux-worktree-orchestration
 ```
 
 ## Prerequisites

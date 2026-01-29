@@ -28,19 +28,11 @@ Parse the user input and extract options:
 
 ## Execution
 
-Execute the merge script. The script is located in the `scripts/` directory of this plugin.
-
-**IMPORTANT**: Use the Bash tool to run the script. The script path relative to this command file is `../scripts/tmux-worktree-merge.sh`.
-
-For example, if this file is at `/path/to/plugin/commands/tmux-worktree-merge.md`, then the script is at `/path/to/plugin/scripts/tmux-worktree-merge.sh`.
-
-Execute the script with the extracted options:
+Execute the merge script using the `CLAUDE_PLUGIN_ROOT` environment variable:
 
 ```bash
-bash "<plugin-root>/scripts/tmux-worktree-merge.sh" [--skip-merge] [--force]
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/tmux-worktree-merge.sh" [--skip-merge] [--force]
 ```
-
-Replace `<plugin-root>` with the actual plugin directory path (one level up from this command file).
 
 ## What the script does
 
